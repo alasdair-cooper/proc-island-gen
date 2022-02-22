@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Runtime.InteropServices;
 
+[StructLayout(LayoutKind.Sequential)]
 public class NoiseMapInfo
 {
     public int Width { get; set; }
+    public int IslandWidth { get; set; }
 
     public int Seed { get; set; }
 
@@ -27,6 +30,7 @@ public class NoiseMapInfo
 
     public NoiseMapInfo(
         int width,
+        int islandWidth,
         int seed,
         float noiseScale,
         float verticalScale,
@@ -39,6 +43,7 @@ public class NoiseMapInfo
         bool falloffEnabled = false)
     {
         Width = width;
+        IslandWidth = islandWidth;
 
         Seed = seed;
 

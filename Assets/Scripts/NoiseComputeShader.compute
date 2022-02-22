@@ -1,14 +1,59 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
+#include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise2D.hlsl"
+#include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise2D.hlsl"
+
+RWStructuredBuffer<float> _NoiseHeights;
+
+int _Enabled;
+int _FalloffEnabled;
+int _NoiseType;
+uint _Width;
+float _OffsetX;
+float _OffsetZ;
+float _NoiseScale;
+float _VerticalScale;
+int _Octaves;
+float _Lacunarity;
+float _Persistence;
+
+float calculateNoiseHeight(float x, float z)
+{
+    float frequency = 1;
+    float amplitude = 1;
+    float noiseHeight = 0;
+
+    x = x + _OffsetX;
+    z = z + _OffsetZ;
+
+    for (int i = 0; i < _Octaves; i++)
+    {
+        float xValue = (x / _NoiseScale) * frequency;
+        float zValue = (z / _NoiseScale) * frequency;
+
+        float noiseSample = 0;
+
+        if (_NoiseType == 0)
+        {
+            noiseSample = (ClassicNoise(float2(xValue + 0.1f, zValue + 0.1f)) * 2) - 1;
+        }
+        else if (_NoiseType == 1)
+        {
+            noiseSample = (SimplexNoise(float2(xValue, zValue)) * 2) - 1;
+        }
+
+        noiseHeight += noiseSample * amplitude;
+
+        frequency *= _Lacunarity;
+        amplitude *= _Persistence;
+    }
+
+    return noiseHeight;
+}
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
-
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    _NoiseHeights[id.x + id.y * _Width] = calculateNoiseHeight(id.x, id.y);
 }
