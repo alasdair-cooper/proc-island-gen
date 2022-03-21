@@ -164,20 +164,20 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _Disp1: 0.13
-    - _Disp2: 4.14
-    - _Disp3: 4.14
-    - _Disp4: 4.14
+    - _Disp1: 0
+    - _Disp2: 100
+    - _Disp3: 100
+    - _Disp4: 100
     - _Displacement: 0.179
     - _DstBlend: 0
     - _Gloss: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HighThreshold: 0.833
-    - _LowThreshold: 0.093
+    - _HighThreshold: 0.679
+    - _LowThreshold: 0.16
     - _Metallic: 0
-    - _MidThreshold: 0.635
+    - _MidThreshold: 0.679
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -185,12 +185,12 @@ Material:
     - _Spec: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Tess: 18.3
-    - _TessDst: 40
-    - _Tiling1: 4
-    - _Tiling2: 1.46
-    - _Tiling3: 1.46
-    - _Tiling4: 1.46
+    - _Tess: 10
+    - _TessDst: 100
+    - _Tiling1: 40.1
+    - _Tiling2: 48.2
+    - _Tiling3: 48.2
+    - _Tiling4: 48.2
     - _TilingAmount: 1
     - _UVSec: 0
     - _VerticalScale: 1

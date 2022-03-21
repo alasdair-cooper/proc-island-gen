@@ -118,7 +118,7 @@ Shader "Custom/TerrainShader"
                 float2 uv_MainTex4;
                 float3 worldNormal;
                 float3 worldPos;
-                float color : COLOR;
+                float4 color : COLOR;
             };
 
             float4 _MainTex01_ST;
@@ -128,12 +128,18 @@ Shader "Custom/TerrainShader"
                 float slope = 1 - normalize(v.normal).y;
                 float d;
 
-                float d1 = tex2Dlod(_DispTex1, float4(v.texcoord.xy * _Tiling1, 0, 0)).r * _Disp1;
-                float d2 = tex2Dlod(_DispTex2, float4(v.texcoord.xy * _Tiling2, 0, 0)).r * _Disp2;
-                float d3 = tex2Dlod(_DispTex3, float4(v.texcoord.xy * _Tiling3, 0, 0)).r * _Disp3;
-                float d4 = tex2Dlod(_DispTex4, float4(v.texcoord.xy * _Tiling4, 0, 0)).r * _Disp4;
+                float3 wpos = mul(unity_ObjectToWorld, v.vertex).xyz;
+                float2 pos = wpos.xz;
 
-                if (slope < _LowThreshold && slope > 0) {
+                float d1 = tex2Dlod(_DispTex1, float4(pos * (1 / _Tiling1), 0, 0)).r * _Disp1;
+                float d2 = tex2Dlod(_DispTex2, float4(pos * (1/ _Tiling2), 0, 0)).r * _Disp2;
+                float d3 = tex2Dlod(_DispTex3, float4(pos * (1 / _Tiling3), 0, 0)).r * _Disp3;
+                float d4 = tex2Dlod(_DispTex4, float4(pos * (1 / _Tiling4), 0, 0)).r * _Disp4;
+
+                if (slope == 0) {
+                    d = d1;
+                }
+                else if (slope < _LowThreshold && slope > 0) {
                     d = lerp(d1, d2, slope / _LowThreshold);
                 }
                 else if (slope >= _LowThreshold && slope < _MidThreshold) {
@@ -146,16 +152,10 @@ Shader "Custom/TerrainShader"
                     d = d4;
                 }
 
-                float3 vertexWorldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                if (vertexWorldPos.x % 64 == 0) {
-                    v.normal.x = 0;
-                }
-                if (vertexWorldPos.z % 64 == 0) {
-                    v.normal.z = 0;
-                }
+                float dist = distance(wpos, _WorldSpaceCameraPos);
 
-                v.vertex.xyz += v.normal * d;
-                v.color = float4(slope, 0, 0, 0);
+                v.vertex.y += v.normal * d * (1 - (min(dist, _TessDst) / _TessDst));
+                v.color = float4(pos.x, pos.y, 0, slope);
                 //v.vertex.y *= ((ClassicNoise(float2(v.vertex.x, v.vertex.z)) * 2) - 1) * _VerticalScale;
 
                 //float2 worldXY = mul(unity_ObjectToWorld, v.vertex).xy;
@@ -164,21 +164,31 @@ Shader "Custom/TerrainShader"
 
             void surf(Input IN, inout SurfaceOutput o) 
             {
-                float slope = IN.color.x;
-                float normal;
+                float slope = IN.color.w;
+                float normal = 1;
                 half4 c;
 
-                float3 normal1 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex1 * _Tiling1));
-                float3 normal2 = UnpackNormal(tex2D(_NormalMap2, IN.uv_MainTex2 * _Tiling2));
-                float3 normal3 = UnpackNormal(tex2D(_NormalMap3, IN.uv_MainTex3 * _Tiling3));
-                float3 normal4 = UnpackNormal(tex2D(_NormalMap4, IN.uv_MainTex4 * _Tiling4));
+                float2 pos = IN.color.xy;
 
-                half4 cMainTex1 = tex2D(_MainTex1, IN.uv_MainTex1 * _Tiling1);
-                half4 cMainTex2 = tex2D(_MainTex2, IN.uv_MainTex2 * _Tiling2);
-                half4 cMainTex3 = tex2D(_MainTex3, IN.uv_MainTex3 * _Tiling3);
-                half4 cMainTex4 = tex2D(_MainTex4, IN.uv_MainTex4 * _Tiling4);
+                float3 normal1 = UnpackNormal(tex2D(_NormalMap1, pos * (1 / _Tiling1)));
+                float3 normal2 = UnpackNormal(tex2D(_NormalMap2, pos * (1 / _Tiling2)));
+                float3 normal3 = UnpackNormal(tex2D(_NormalMap3, pos * (1 / _Tiling3)));
+                float3 normal4 = UnpackNormal(tex2D(_NormalMap4, pos * (1 / _Tiling4)));
+                //float3 normal1 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex1 * _Tiling1));
+                //float3 normal2 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex2 * _Tiling2));
+                //float3 normal3 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex3 * _Tiling3));
+                //float3 normal4 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex4 * _Tiling4));
 
-                if (slope < _LowThreshold && slope > 0) {
+                half4 cMainTex1 = tex2Dlod(_MainTex1, float4(pos * (1 / _Tiling1), 0, 0));
+                half4 cMainTex2 = tex2Dlod(_MainTex2, float4(pos * (1 / _Tiling2), 0, 0));
+                half4 cMainTex3 = tex2Dlod(_MainTex3, float4(pos * (1 / _Tiling3), 0, 0));
+                half4 cMainTex4 = tex2Dlod(_MainTex4, float4(pos * (1 / _Tiling4), 0, 0));
+
+                if (slope == 0) {
+                    c = cMainTex1;
+                    normal = normal1;
+                }
+                else if (slope < _LowThreshold && slope > 0) {
                     c = lerp(cMainTex1, cMainTex2, slope / _LowThreshold);
                     normal = lerp(normal1, normal2, slope / _LowThreshold);
                 }

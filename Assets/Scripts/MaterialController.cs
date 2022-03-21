@@ -98,7 +98,7 @@ public class MaterialController : MonoBehaviour
     [System.Serializable]
     public class PbrTextureSet
     {
-        [Range(0, 10)]
+        [Range(0, 100)]
         public float DisplacementAmount = 0.2f;
         public float TilingAmount = 1f;
 
