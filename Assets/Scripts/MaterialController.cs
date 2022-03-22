@@ -11,6 +11,8 @@ public class MaterialController : MonoBehaviour
 
     public readonly int MaxSupportedTextures = 4;
 
+    public Utils.DebugType DebugMode = Utils.DebugType.none;
+
     [Range(1, 32)]
     public float Tesselation = 15;
     public float TesselationDistance = 40;
@@ -69,6 +71,8 @@ public class MaterialController : MonoBehaviour
             }
         }
 
+        TerrainMaterial.SetInteger("_DebugMode", ((int)DebugMode));
+
         TerrainMaterial.SetFloat("_Tess", Tesselation);
         TerrainMaterial.SetFloat("_TessDst", TesselationDistance);
 
@@ -100,6 +104,7 @@ public class MaterialController : MonoBehaviour
     {
         [Range(0, 100)]
         public float DisplacementAmount = 0.2f;
+        [Range(0, 1)]
         public float TilingAmount = 1f;
 
         public Texture2D Albedo;

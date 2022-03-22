@@ -164,7 +164,7 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _Disp1: 0
+    - _Disp1: 100
     - _Disp2: 100
     - _Disp3: 100
     - _Disp4: 100
@@ -174,10 +174,10 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HighThreshold: 0.679
-    - _LowThreshold: 0.16
+    - _HighThreshold: 0
+    - _LowThreshold: 0
     - _Metallic: 0
-    - _MidThreshold: 0.679
+    - _MidThreshold: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -187,10 +187,10 @@ Material:
     - _SrcBlend: 1
     - _Tess: 10
     - _TessDst: 100
-    - _Tiling1: 40.1
-    - _Tiling2: 48.2
-    - _Tiling3: 48.2
-    - _Tiling4: 48.2
+    - _Tiling1: 0.022
+    - _Tiling2: 0.007
+    - _Tiling3: 0.007
+    - _Tiling4: 0.007
     - _TilingAmount: 1
     - _UVSec: 0
     - _VerticalScale: 1

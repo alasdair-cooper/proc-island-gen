@@ -17,5 +17,12 @@ public class Utils
         GPU,
         flat
     }
+
+    public enum DebugType
+    {
+        none,
+        normals,
+        slope
+    }
 }
 

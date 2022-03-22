@@ -14,6 +14,7 @@ public class customButton : Editor
         {
             terrainController.ResetChunks();
         }
-    }
 
+        //terrainController.NoiseMapInfo = terrainController.noiseMapInfo;
+    }
 }

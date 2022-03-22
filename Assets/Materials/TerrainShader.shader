@@ -44,6 +44,8 @@ Shader "Custom/TerrainShader"
         _SpecColor("Spec color", color) = (0.5,0.5,0.5,0.5)
 
         _VerticalScale("Vertical scale", Float) = 1
+
+        _DebugMode("Debug mode", Int) = 0
     }
     SubShader
     {
@@ -76,6 +78,8 @@ Shader "Custom/TerrainShader"
             float _HighThreshold;
 
             float _VerticalScale;
+
+            float _DebugMode;
 
             float4 tessDistance(appdata v0, appdata v1, appdata v2) {
                 float minDist = 1;
@@ -131,10 +135,14 @@ Shader "Custom/TerrainShader"
                 float3 wpos = mul(unity_ObjectToWorld, v.vertex).xyz;
                 float2 pos = wpos.xz;
 
-                float d1 = tex2Dlod(_DispTex1, float4(pos * (1 / _Tiling1), 0, 0)).r * _Disp1;
+                /*float d1 = tex2Dlod(_DispTex1, float4(pos * (1 / _Tiling1), 0, 0)).r * _Disp1;
                 float d2 = tex2Dlod(_DispTex2, float4(pos * (1/ _Tiling2), 0, 0)).r * _Disp2;
                 float d3 = tex2Dlod(_DispTex3, float4(pos * (1 / _Tiling3), 0, 0)).r * _Disp3;
-                float d4 = tex2Dlod(_DispTex4, float4(pos * (1 / _Tiling4), 0, 0)).r * _Disp4;
+                float d4 = tex2Dlod(_DispTex4, float4(pos * (1 / _Tiling4), 0, 0)).r * _Disp4;*/
+                float d1 = tex2Dlod(_DispTex1, float4(pos * _Tiling1, 0, 0)).r * _Disp1;
+                float d2 = tex2Dlod(_DispTex2, float4(pos * _Tiling2, 0, 0)).r * _Disp2;
+                float d3 = tex2Dlod(_DispTex3, float4(pos * _Tiling3, 0, 0)).r * _Disp3;
+                float d4 = tex2Dlod(_DispTex4, float4(pos * _Tiling4, 0, 0)).r * _Disp4;
 
                 if (slope == 0) {
                     d = d1;
@@ -154,9 +162,9 @@ Shader "Custom/TerrainShader"
 
                 float dist = distance(wpos, _WorldSpaceCameraPos);
 
-                v.vertex.y += v.normal * d * (1 - (min(dist, _TessDst) / _TessDst));
+                //v.vertex.y += v.normal * d * (1 - (min(dist, _TessDst) / _TessDst));
+                v.vertex.xyz += v.normal * d * (1 - (min(dist, _TessDst) / _TessDst));
                 v.color = float4(pos.x, pos.y, 0, slope);
-                //v.vertex.y *= ((ClassicNoise(float2(v.vertex.x, v.vertex.z)) * 2) - 1) * _VerticalScale;
 
                 //float2 worldXY = mul(unity_ObjectToWorld, v.vertex).xy;
                 //v.texcoord = TRANSFORM_TEX(worldXY, _MainTex01);
@@ -170,19 +178,19 @@ Shader "Custom/TerrainShader"
 
                 float2 pos = IN.color.xy;
 
-                float3 normal1 = UnpackNormal(tex2D(_NormalMap1, pos * (1 / _Tiling1)));
-                float3 normal2 = UnpackNormal(tex2D(_NormalMap2, pos * (1 / _Tiling2)));
-                float3 normal3 = UnpackNormal(tex2D(_NormalMap3, pos * (1 / _Tiling3)));
-                float3 normal4 = UnpackNormal(tex2D(_NormalMap4, pos * (1 / _Tiling4)));
+                float3 normal1 = UnpackNormal(tex2D(_NormalMap1, pos * _Tiling1));
+                float3 normal2 = UnpackNormal(tex2D(_NormalMap2, pos * _Tiling2));
+                float3 normal3 = UnpackNormal(tex2D(_NormalMap3, pos * _Tiling3));
+                float3 normal4 = UnpackNormal(tex2D(_NormalMap4, pos * _Tiling4));
                 //float3 normal1 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex1 * _Tiling1));
                 //float3 normal2 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex2 * _Tiling2));
                 //float3 normal3 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex3 * _Tiling3));
                 //float3 normal4 = UnpackNormal(tex2D(_NormalMap1, IN.uv_MainTex4 * _Tiling4));
 
-                half4 cMainTex1 = tex2Dlod(_MainTex1, float4(pos * (1 / _Tiling1), 0, 0));
-                half4 cMainTex2 = tex2Dlod(_MainTex2, float4(pos * (1 / _Tiling2), 0, 0));
-                half4 cMainTex3 = tex2Dlod(_MainTex3, float4(pos * (1 / _Tiling3), 0, 0));
-                half4 cMainTex4 = tex2Dlod(_MainTex4, float4(pos * (1 / _Tiling4), 0, 0));
+                half4 cMainTex1 = tex2Dlod(_MainTex1, float4(pos * _Tiling1, 0, 0));
+                half4 cMainTex2 = tex2Dlod(_MainTex2, float4(pos * _Tiling2, 0, 0));
+                half4 cMainTex3 = tex2Dlod(_MainTex3, float4(pos * _Tiling3, 0, 0));
+                half4 cMainTex4 = tex2Dlod(_MainTex4, float4(pos * _Tiling4, 0, 0));
 
                 if (slope == 0) {
                     c = cMainTex1;
@@ -205,11 +213,23 @@ Shader "Custom/TerrainShader"
                     normal = normal4;
                 }
 
+                if (_DebugMode == 0)
+                {
+                    o.Albedo = c.rgb;
+                }
+                else if (_DebugMode == 1)
+                {
+                    o.Albedo = o.Normal;
+                }
+                else if (_DebugMode == 2)
+                {
+                    o.Albedo = slope;
+                }
+
                 c = c * _Color;
-                o.Albedo = c.rgb;
                 o.Specular = _Spec;
                 o.Gloss = _Gloss;
-                o.Normal = normal;
+                //o.Normal = o.Normal + normal * 0.1;
             }
             ENDCG
         }

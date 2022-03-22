@@ -5,47 +5,24 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class TerrainController : MonoBehaviour
 {
+    public NoiseMapInfo NoiseMapInfo;
+    private float timeSinceLastNoiseMapUpdate = 0;
+
     public int chunkSize;
-    public int islandSize;
-
     public int initialViewDistance;
-    [Range(0, 10)]
-    public int maxLod;
-
-    public int seed = 0;
-
-    [Min(0.01f)]
-    public float noiseScale = 1;
-    [Min(0.01f)]
-    public float verticalScale = 1;
-
-    [Min(1)]
-    public int octaves = 5;
-
-    [Range(0, 100)]
-    public float lacunarity;
-    [Range(0, 1)]
-    public float persistence;
-
-    [Range(1, 10)]
-    public float lacunarityMultiplier;
-    [Range(1, 10)]
-    public float persistenceMultiplier;
-
-    public Utils.NoiseType noiseType;
-
-    public bool generateFalloff = false;
 
     public Material chunkMaterial;
-
     public float WaterHeight;
     public Material WaterMaterial;
-
     public ComputeShader noiseHeightmapShader;
 
     Dictionary<Vector2, Chunk> chunks = new Dictionary<Vector2, Chunk>();
     public GameObject chunkParent;
     int chunkRange;
+
+    public Utils.NoiseType noiseType;
+
+    public bool autoUpdate;
 
     // Start is called before the first frame update
     void Start()
@@ -57,13 +34,16 @@ public class TerrainController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GenerateChunks();
+        if (autoUpdate && timeSinceLastNoiseMapUpdate > 1)
+        {
+            ResetChunks();
+            timeSinceLastNoiseMapUpdate = 0;
+        }
+        timeSinceLastNoiseMapUpdate += Time.deltaTime;
     }
 
     public void GenerateChunks()
     {
-        NoiseMapInfo mapInfo = new NoiseMapInfo(chunkSize, islandSize, seed, noiseScale, verticalScale, octaves, lacunarity, persistence, maxLod);
-
         Transform cameraTransform = GetComponent<Transform>();
         Vector2 playerPosition = new Vector2(cameraTransform.position.x, cameraTransform.position.z);
 
@@ -75,10 +55,10 @@ public class TerrainController : MonoBehaviour
             {
                 Vector2 newChunk = (currentChunk + new Vector2(x, z)) * chunkSize;
 
-                if (!chunks.ContainsKey(newChunk) && newChunk.x >= 0 && newChunk.y >= 0 && newChunk.x < mapInfo.IslandWidth && newChunk.y < mapInfo.IslandWidth)
+                if (!chunks.ContainsKey(newChunk) && newChunk.x >= 0 && newChunk.y >= 0 && newChunk.x < NoiseMapInfo.IslandWidth && newChunk.y < NoiseMapInfo.IslandWidth)
                 {
                     System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    Chunk chunk = new Chunk(newChunk, mapInfo, chunkMaterial, noiseHeightmapShader);
+                    Chunk chunk = new Chunk(newChunk, NoiseMapInfo, chunkMaterial, noiseHeightmapShader);
                     stopwatch.Stop();
                     //Debug.Log($"Chunk at {newChunk} was created in {stopwatch.ElapsedMilliseconds}ms.");
                     chunks.Add(newChunk, chunk);
