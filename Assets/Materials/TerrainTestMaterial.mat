@@ -71,6 +71,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 1ff8f28c294b28b4d88cd55705bebb09, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DispTexBottom:
+        m_Texture: {fileID: 2800000, guid: af70087d6f7461b489548f0d194239e9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -109,6 +113,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex4:
         m_Texture: {fileID: 2800000, guid: 89164a82e4e8ad4499a77c77ead5130b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexBottom:
+        m_Texture: {fileID: 2800000, guid: 64f92740b40319848bddbdbf7985ff9b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -151,6 +159,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 4027ac15ec2ef4241a98713e33924cdf, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalMapBottom:
+        m_Texture: {fileID: 2800000, guid: eb274aa22cd292648921ac6fa16bb2d9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -161,23 +173,30 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BottomCapThreshold: 12.2
+    - _BottomCapThresholdWidth: 1.62
     - _BumpScale: 1
     - _Cutoff: 0.5
+    - _DebugMode: 0
     - _DetailNormalMapScale: 1
-    - _Disp1: 100
-    - _Disp2: 100
-    - _Disp3: 100
-    - _Disp4: 100
+    - _Disp1: 0.31
+    - _Disp2: 0
+    - _Disp3: 0
+    - _Disp4: 0
+    - _DispBottom: 0.4
     - _Displacement: 0.179
     - _DstBlend: 0
     - _Gloss: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HighThreshold: 0
-    - _LowThreshold: 0
+    - _HighThreshold: 0.657
+    - _HighThresholdWidth: 0.1
+    - _LowThreshold: 0.211
+    - _LowThresholdWidth: 0.035
     - _Metallic: 0
-    - _MidThreshold: 0
+    - _MidThreshold: 0.541
+    - _MidThresholdWidth: 0.1
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -185,13 +204,14 @@ Material:
     - _Spec: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Tess: 10
-    - _TessDst: 100
-    - _Tiling1: 0.022
-    - _Tiling2: 0.007
-    - _Tiling3: 0.007
-    - _Tiling4: 0.007
+    - _Tess: 1
+    - _TessDst: 30
+    - _Tiling1: 10
+    - _Tiling2: 15
+    - _Tiling3: 15
+    - _Tiling4: 15
     - _TilingAmount: 1
+    - _TilingBottom: 10
     - _UVSec: 0
     - _VerticalScale: 1
     - _ZWrite: 1

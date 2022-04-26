@@ -6,13 +6,18 @@ using UnityEditor;
 using System.Runtime.InteropServices;
 
 [Serializable]
+[StructLayout(LayoutKind.Sequential)]
 public class NoiseMapInfo
 {
-    [field: SerializeField]
-    public int Width { get; set; }
+    public int LocalChunkSize { get; set; }
 
-    [field: SerializeField]
-    public int IslandWidth { get; set; }
+    public int MacroChunkSize { get; set; }
+
+    [field: SerializeField, Range(0, 1)]
+    public float IslandDensity { get; set; }
+
+    [field: SerializeField, Min(1)]
+    public int ErosionIterations { get; set; }
 
     [field: SerializeField]
     public int Seed { get; set; }
@@ -41,13 +46,13 @@ public class NoiseMapInfo
     [field: SerializeField, Range(1, 10)]
     public float PersistenceMult { get; set; }
 
-    [field: SerializeField]
-    public bool FalloffEnabled { get; set; }
+    [field: SerializeField, HideInInspector]
+    public int FalloffEnabled { get; set; }
 
 
     public NoiseMapInfo(
-        int width = 16,
-        int islandWidth = 16,
+        int chunkSize = 10,
+        int islandSize = 100,
         int seed = 0,
         float noiseScale = 1,
         float verticalScale = 1,
@@ -59,8 +64,8 @@ public class NoiseMapInfo
         float persistenceMult = 1,
         bool falloffEnabled = false)
     {
-        Width = width;
-        IslandWidth = islandWidth;
+        LocalChunkSize = chunkSize;
+        MacroChunkSize = islandSize;
 
         Seed = seed;
 
@@ -77,6 +82,6 @@ public class NoiseMapInfo
         LacunarityMult = lacunarityMult;
         PersistenceMult = persistenceMult;
 
-        FalloffEnabled = falloffEnabled;
+        FalloffEnabled = falloffEnabled ? 1 : 0;
     }
 }

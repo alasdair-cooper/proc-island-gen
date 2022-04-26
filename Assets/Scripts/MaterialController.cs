@@ -18,11 +18,22 @@ public class MaterialController : MonoBehaviour
     public float TesselationDistance = 40;
 
     [Range(0, 1)]
-    public float LowThreshold;
+    public float LowThresholdBorder;
     [Range(0, 1)]
-    public float MidThreshold;
+    public float MidThresholdBorder;
     [Range(0, 1)]
-    public float HighThreshold;
+    public float HighThresholdBorder;
+
+
+    [Range(0, 1)]
+    public float LowThresholdBorderWidth;
+    [Range(0, 1)]
+    public float MidThresholdBorderWidth;
+    [Range(0, 1)]
+    public float HighThresholdBorderWidth;
+
+    public float BottomCapThresholdBorder;
+    public float BottomCapThresholdBorderWidth;
 
     [Range(0, 1)]
     public float Specular;
@@ -30,6 +41,8 @@ public class MaterialController : MonoBehaviour
     public float Gloss;
 
     public PbrTextureSet[] Textures;
+
+    public PbrTextureSet BottomCapTexture;
 
     // Start is called before the first frame update
     void Start()
@@ -46,13 +59,19 @@ public class MaterialController : MonoBehaviour
 
     void UpdateThresholds()
     {
-        if (MidThreshold > HighThreshold)
+        if (MidThresholdBorder > HighThresholdBorder)
         {
-            MidThreshold = HighThreshold;
+            MidThresholdBorder = HighThresholdBorder;
         }
-        if (LowThreshold > MidThreshold)
+        if (LowThresholdBorder > MidThresholdBorder)
         {
-            LowThreshold = MidThreshold;
+            LowThresholdBorder = MidThresholdBorder;
+        }
+        if(LowThresholdBorderWidth + MidThresholdBorderWidth + HighThresholdBorderWidth > 1)
+        {
+            LowThresholdBorderWidth = Mathf.Min(1, LowThresholdBorderWidth);
+            MidThresholdBorderWidth = Mathf.Min(1 - LowThresholdBorderWidth, MidThresholdBorderWidth);
+            HighThresholdBorderWidth = Mathf.Min(1 - MidThresholdBorderWidth, HighThresholdBorderWidth);
         }
     }
 
@@ -90,9 +109,23 @@ public class MaterialController : MonoBehaviour
             TerrainMaterial.SetFloat($"_Tiling{i}", textures[i - 1].TilingAmount);
         }
 
-        TerrainMaterial.SetFloat("_LowThreshold", LowThreshold);
-        TerrainMaterial.SetFloat("_MidThreshold", MidThreshold);
-        TerrainMaterial.SetFloat("_HighThreshold", HighThreshold);
+        TerrainMaterial.SetTexture($"_MainTexBottom", BottomCapTexture.Albedo);
+        TerrainMaterial.SetTexture($"_DispTexBottom", BottomCapTexture.Displacement);
+        TerrainMaterial.SetTexture($"_NormalMapBottom", BottomCapTexture.Normalmap);
+        TerrainMaterial.SetFloat($"_DispBottom", BottomCapTexture.DisplacementAmount);
+        TerrainMaterial.SetFloat($"_TilingBottom", BottomCapTexture.TilingAmount);
+
+        TerrainMaterial.SetFloat("_LowThreshold", LowThresholdBorder);
+        TerrainMaterial.SetFloat("_MidThreshold", MidThresholdBorder);
+        TerrainMaterial.SetFloat("_HighThreshold", HighThresholdBorder);
+
+        TerrainMaterial.SetFloat("_BottomCapThreshold", BottomCapThresholdBorder);
+
+        TerrainMaterial.SetFloat("_LowThresholdWidth", LowThresholdBorderWidth);
+        TerrainMaterial.SetFloat("_MidThresholdWidth", MidThresholdBorderWidth);
+        TerrainMaterial.SetFloat("_HighThresholdWidth", HighThresholdBorderWidth);
+
+        TerrainMaterial.SetFloat("_BottomCapThresholdWidth", BottomCapThresholdBorderWidth);
 
         TerrainMaterial.SetFloat("_Spec", Specular);
         TerrainMaterial.SetFloat("_Gloss", Gloss);
@@ -104,7 +137,7 @@ public class MaterialController : MonoBehaviour
     {
         [Range(0, 100)]
         public float DisplacementAmount = 0.2f;
-        [Range(0, 1)]
+        [Range(0.01f, 1000)]
         public float TilingAmount = 1f;
 
         public Texture2D Albedo;

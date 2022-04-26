@@ -10,11 +10,9 @@ public class customButton : Editor
         DrawDefaultInspector();
 
         TerrainController terrainController = (TerrainController)target;
-        if (GUILayout.Button("Generate"))
+        if (GUILayout.Button("Reset"))
         {
             terrainController.ResetChunks();
         }
-
-        //terrainController.NoiseMapInfo = terrainController.noiseMapInfo;
     }
 }
