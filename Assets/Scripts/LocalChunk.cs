@@ -5,63 +5,107 @@ public class LocalChunk
 {
     public GameObject ChunkObject { get; set; }
     
-    Vector2 chunkPosition;
+    readonly Vector2 _chunkPosition;
+    Dictionary<int, Mesh> _chunkLODs;
+    int _currentLod = 0;
+    int _maxLod = -1;
+
+    int _actualWidth;
     
     NoiseMapInfo MapInfo { get; set; }
 
-    AnimationCurve VarietyDistribution;
-    AnimationCurve FalloffDistribution;
+    readonly Material _chunkMaterial;
 
-    public LocalChunk(float[] heightMap, Vector2 position, NoiseMapInfo mapInfo, Material chunkMaterial, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution)
+    readonly AnimationCurve _varietyDistribution;
+    readonly AnimationCurve _falloffDistribution;
+
+    public LocalChunk(float[] heightMap, Vector2 position, NoiseMapInfo mapInfo, int lod, Material chunkMaterial, Transform chunkParent, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution)
     {
         MapInfo = mapInfo;
-        VarietyDistribution = varietyDistribution;
-        FalloffDistribution = falloffDistribution;
-        chunkPosition = position;
+        _chunkMaterial = chunkMaterial;
+        _varietyDistribution = varietyDistribution;
+        _falloffDistribution = falloffDistribution;
+        _chunkPosition = position;
 
-        ChunkObject = new GameObject($"Local Chunk {position}");
-        //ChunkObject.AddComponent(typeof(LODGroup));
+        _chunkLODs = new Dictionary<int, Mesh>();
+
+        _actualWidth = MapInfo.LocalChunkSize + 1;
+
+        ChunkObject = new GameObject($"Local Chunk LOD{lod}");
         ChunkObject.transform.SetPositionAndRotation(new Vector3(position.x, 0, position.y), Quaternion.identity);
+        ChunkObject.transform.parent = chunkParent;
 
-        //LODGroup lodGroup = ChunkObject.GetComponent<LODGroup>();
+        ChunkObject.AddComponent<MeshFilter>();
+        ChunkObject.AddComponent<MeshRenderer>();
+        ChunkObject.AddComponent<MeshCollider>();
 
-        //List<LOD> lodList = new List<LOD>();
-        //for (int i = 0; i <= MapInfo.MaxLod; i++)
-        //{
-        //    MeshRenderer meshRenderer = GenerateMeshObject(ChunkObject.transform, i, chunkMaterial);
-        //    if (meshRenderer != null)
-        //    {
-        //        lodList.Add(new LOD(1 / Mathf.Pow(1.25f, i), new Renderer[] { meshRenderer }));
-        //    }
-        //    else
-        //    {
-        //        break;
-        //    }
-        //}
-
-        //LOD[] lodArray = lodList.ToArray();
-        //lodArray[lodArray.Length - 1].screenRelativeTransitionHeight = 0;
-
-        //lodGroup.SetLODs(lodArray);
-        //lodGroup.RecalculateBounds();
-
-        MeshFilter meshFilter = ChunkObject.AddComponent<MeshFilter>();
-        MeshRenderer meshRenderer = ChunkObject.AddComponent<MeshRenderer>();
-
-        meshFilter.sharedMesh = GenerateChunkMesh(heightMap);
-        meshRenderer.sharedMaterial = chunkMaterial;
+        UpdateChunk(heightMap, lod);
     }
 
-    Mesh GenerateChunkMesh(float[] heightmap)
+    public void UpdateChunk(float[] heightmap, int lod)
     {
-        int width = MapInfo.LocalChunkSize + 1;
+        if (_currentLod == lod)
+        {
+            return;
+        }
+        else
+        {
+            lod = SetChunkMesh(heightmap, lod);
+
+            _currentLod = lod;
+
+            if (lod > _maxLod)
+            {
+                _maxLod = lod;
+            }
+            ChunkObject.name = $"Local Chunk LOD{lod}";
+        }
+    }
+
+    public int SetChunkMesh(float[] heightmap, int lod)
+    {
+        Mesh mesh;
+        if (_chunkLODs.ContainsKey(lod))
+        {
+            mesh = _chunkLODs[lod];
+        }
+        else
+        {
+            (lod, mesh) = GenerateChunkMesh(heightmap, lod);
+            _chunkLODs[lod] = mesh;
+        }
+
+        MeshFilter meshFilter = ChunkObject.GetComponent<MeshFilter>();
+        MeshRenderer meshRenderer = ChunkObject.GetComponent<MeshRenderer>();
+        MeshCollider meshCollider = ChunkObject.GetComponent<MeshCollider>();
+
+        meshFilter.sharedMesh = mesh;
+        meshRenderer.sharedMaterial = _chunkMaterial;
+        meshCollider.sharedMesh = mesh;
+
+        return lod;
+    }
+
+    (int, Mesh) GenerateChunkMesh(float[] heightmap, int lod)
+    {
+        int trueLod = (int)Mathf.Pow(2, lod);
+
+        int verticesPerSide;
+        if (MapInfo.LocalChunkSize % trueLod != 0) 
+        {
+            _maxLod = (int)Mathf.Log(Mathf.NextPowerOfTwo(_actualWidth)) + 1;
+            lod = _maxLod;
+            trueLod = (int)Mathf.Pow(2, lod);
+        }
+        verticesPerSide = ((_actualWidth - 1) / trueLod) + 1;
+
 
         Mesh mesh = new Mesh();
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
-        Vector3[] vertices = new Vector3[width * width];
-        (int, int[]) triangles = (0, new int[(width - 1) * (width - 1) * 6]);
-        Vector2[] uvs = new Vector2[width * width];
+        Vector3[] vertices = new Vector3[verticesPerSide * verticesPerSide];
+        (int, int[]) triangles = (0, new int[(verticesPerSide - 1) * (verticesPerSide - 1) * 6]);
+        Vector2[] uvs = new Vector2[verticesPerSide * verticesPerSide];
 
         System.Random random = new System.Random(MapInfo.Seed);
         Vector2[] offsets = new Vector2[MapInfo.Octaves];
@@ -72,12 +116,12 @@ public class LocalChunk
         }
 
         int vertexIndex = 0;
-        for (int z = 0; z < width; z += 1)
+        for (int z = 0; z < _actualWidth; z += trueLod)
         {
-            for (int x = 0; x < width; x += 1)
+            for (int x = 0; x < _actualWidth; x += trueLod)
             {
-                float worldX = x + chunkPosition.x;
-                float worldZ = z + chunkPosition.y;
+                float worldX = x + _chunkPosition.x;
+                float worldZ = z + _chunkPosition.y;
 
                 float falloffFactor = 1;
                 if (MapInfo.FalloffEnabled == 1)
@@ -86,24 +130,41 @@ public class LocalChunk
                         new Vector2(worldX % MapInfo.MacroChunkSize, worldZ % MapInfo.MacroChunkSize),
                         new Vector2(0.5f * MapInfo.MacroChunkSize, 0.5f * MapInfo.MacroChunkSize)) / (0.5f * MapInfo.MacroChunkSize));
                     falloffFactor = -falloffFactor + 1;
-                    falloffFactor = VarietyDistribution.Evaluate(FalloffDistribution.Evaluate(falloffFactor));
+                    falloffFactor = _varietyDistribution.Evaluate(_falloffDistribution.Evaluate(falloffFactor));
+
                 }
 
-                float currentNoiseHeight = heightmap[z * width + x];
+                float currentNoiseHeight = heightmap[z * _actualWidth + x];
                 Vector3 currentVertex = new Vector3(x, currentNoiseHeight * MapInfo.VerticalScale * falloffFactor, z);
 
                 vertices[vertexIndex] = currentVertex;
-                uvs[vertexIndex] = new Vector2((float)x / width, (float)z / width);
+                uvs[vertexIndex] = new Vector2((float)x / _actualWidth, (float)z / _actualWidth);
 
-                if (x < width - 1 && z < width - 1)
+                if (x < _actualWidth - 1 && z < _actualWidth - 1)
                 {
-                    AddMeshTriangles(ref triangles, vertexIndex, width);
+                    AddMeshTriangles(ref triangles, vertexIndex, verticesPerSide);
                 }
 
                 vertexIndex++;
             }
         }
 
+        //if (lod == 0)
+        //{
+
+        //    for (int x = 1; x < verticesPerSide; x += 2)
+        //    {
+        //        vertices[x].y = (vertices[x - 1].y + vertices[x + 1].y) / 2;
+        //        Debug.Log(x);
+        //        vertices[verticesPerSide * (verticesPerSide - 1) + x].y = (vertices[verticesPerSide * (verticesPerSide - 1) + (x - 1)].y + vertices[verticesPerSide * (verticesPerSide - 1) + (x + 1)].y) / 2;
+        //    }
+
+        //    for (int z = 1; z < verticesPerSide; z += 2)
+        //    {
+        //        vertices[z * verticesPerSide].y = (vertices[(z - 1) * verticesPerSide].y + vertices[(z + 1) * verticesPerSide].y) / 2;
+        //        vertices[z * verticesPerSide + (verticesPerSide - 1)].y = (vertices[(z - 1) * verticesPerSide + (verticesPerSide - 1)].y + vertices[(z + 1) * verticesPerSide + (verticesPerSide - 1)].y) / 2;
+        //    }
+        //}
         mesh.vertices = vertices;
         mesh.triangles = triangles.Item2;
         mesh.uv = uvs;
@@ -111,7 +172,7 @@ public class LocalChunk
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
 
-        return mesh;
+        return (lod, mesh);
     }
 
     //public MeshRenderer GenerateMeshObject(Transform parentTransform, int lod, Material chunkMaterial)
@@ -136,7 +197,7 @@ public class LocalChunk
     //        meshFilter.sharedMesh = mesh;
     //        meshCollider.sharedMesh = mesh;
     //        meshRenderer.sharedMaterial = chunkMaterial;
-            
+
     //        return meshRenderer;
     //    }
     //}
@@ -183,7 +244,7 @@ public class LocalChunk
     //            if (MapInfo.FalloffEnabled == 1)
     //            {
     //                falloffFactor = Mathf.Min(1, Vector2.Distance(
-    //                    new Vector2(worldX % MapInfo.MacroChunkSize, worldZ % MapInfo.MacroChunkSize), 
+    //                    new Vector2(worldX % MapInfo.MacroChunkSize, worldZ % MapInfo.MacroChunkSize),
     //                    new Vector2(0.5f * MapInfo.MacroChunkSize, 0.5f * MapInfo.MacroChunkSize)) / (0.5f * MapInfo.MacroChunkSize));
     //                falloffFactor = -falloffFactor + 1;
     //            }
@@ -216,7 +277,7 @@ public class LocalChunk
     //Mesh GenerateChunkMeshViaShader(int lod)
     //{
 
-        
+
     //    lod = 0;
     //    int trueLod = (int)Mathf.Pow(2, lod);
     //    int width = (int)MapInfo.LocalChunkSize + 1;

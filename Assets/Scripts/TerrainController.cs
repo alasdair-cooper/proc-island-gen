@@ -1,10 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 using Unity;
 using UnityEngine;
+using UnityEditor;
 
 [ExecuteInEditMode]
 public class TerrainController : MonoBehaviour
@@ -48,6 +47,11 @@ public class TerrainController : MonoBehaviour
     public bool PreserveChunks;
 
     public bool EnableConsoleChunkUpdates;
+
+    private void Awake()
+    {
+        ResetChunks();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -157,7 +161,7 @@ public class TerrainController : MonoBehaviour
     {
         MacroChunk currentChunk;
 
-        bool isIsland = Mathf.PerlinNoise(newChunkOriginPosition.x / NoiseMapInfo.MacroChunkSize + 0.01f, newChunkOriginPosition.y / NoiseMapInfo.MacroChunkSize + 0.01f) > NoiseMapInfo.IslandDensity;
+        bool isIsland = Mathf.PerlinNoise((newChunkOriginPosition.x + 0.01f) / (NoiseMapInfo.MacroChunkSize), (newChunkOriginPosition.y + 0.01f) / (NoiseMapInfo.MacroChunkSize)) > NoiseMapInfo.IslandDensity;
         // Debug.Log(Mathf.PerlinNoise(newChunkOriginPosition.x / NoiseMapInfo.IslandSize + 0.01f, newChunkOriginPosition.y / NoiseMapInfo.IslandSize + 0.01f));
 
         if (PreviousMacroChunks.TryGetValue(newChunkOriginPosition, out currentChunk))
@@ -222,7 +226,7 @@ public class TerrainController : MonoBehaviour
 
         foreach (LocalChunk chunk in PreviousLocalChunks.Values)
         {
-            DestroyImmediate(chunk.ChunkObject.transform.parent.gameObject);
+            DestroyImmediate(chunk.ChunkObject.gameObject);
         }
 
         PreviousLocalChunks = CurrentLocalChunks.ToDictionary(entry => entry.Key, entry => entry.Value); 
@@ -232,28 +236,27 @@ public class TerrainController : MonoBehaviour
     public void GenerateSingleLocalChunk(Vector2 newChunkOriginPosition, float[] heightmap, int initialPoint)
     {
         LocalChunk currentChunk;
+        float[] chunkHeightmap = SliceHeightmap(heightmap, initialPoint, NoiseMapInfo.LocalChunkSize + 1, NoiseMapInfo.MacroChunkSize);
+        int lod = Mathf.CeilToInt(Vector2.Distance(newChunkOriginPosition + new Vector2(1, 1) * 0.5f * NoiseMapInfo.LocalChunkSize, new Vector2(transform.position.x, transform.position.z)) / NoiseMapInfo.LocalChunkSize);
         if (PreviousLocalChunks.TryGetValue(newChunkOriginPosition, out currentChunk))
         {
+            currentChunk.UpdateChunk(chunkHeightmap, lod);
             CurrentLocalChunks.Add(newChunkOriginPosition, currentChunk);
             PreviousLocalChunks.Remove(newChunkOriginPosition);
         }
         else
         {
-            float[] chunkHeightmap = SliceHeightmap(heightmap, initialPoint, NoiseMapInfo.LocalChunkSize + 1, NoiseMapInfo.MacroChunkSize);
-
             if (EnableConsoleChunkUpdates)
             {
                 System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                currentChunk = new LocalChunk(chunkHeightmap, newChunkOriginPosition, NoiseMapInfo, ChunkMaterial, VarietyDistribution, FalloffDistribution);
+                currentChunk = new LocalChunk(chunkHeightmap, newChunkOriginPosition, NoiseMapInfo, lod, ChunkMaterial, LocalChunkParent.transform, VarietyDistribution, FalloffDistribution);
                 stopwatch.Stop();
                 Debug.Log($"Local chunk at {newChunkOriginPosition} was created in {stopwatch.ElapsedMilliseconds}ms.");
             }
             else
             {
-                currentChunk = new LocalChunk(chunkHeightmap, newChunkOriginPosition, NoiseMapInfo, ChunkMaterial, VarietyDistribution, FalloffDistribution);
+                currentChunk = new LocalChunk(chunkHeightmap, newChunkOriginPosition, NoiseMapInfo, lod, ChunkMaterial, LocalChunkParent.transform, VarietyDistribution, FalloffDistribution);
             }
-
-            SetupTransforms($"Chunk {newChunkOriginPosition}", new Vector3(newChunkOriginPosition.x, 0, newChunkOriginPosition.y), new Transform[] { currentChunk.ChunkObject.transform });
 
             CurrentLocalChunks.Add(newChunkOriginPosition, currentChunk);
         }
@@ -272,29 +275,29 @@ public class TerrainController : MonoBehaviour
         return heightmapSlice.ToArray();
     }
 
-    public void SetupTransforms(string parentName, Vector3 parentPosition, Transform[] children)
-    {
-        GameObject parentObject = new GameObject()
-        {
-            name = parentName
-        };
-        parentObject.transform.position = parentPosition;
-        
-        foreach (Transform child in children)
-        {
-            child.transform.parent = parentObject.transform;
-        }
-
-        parentObject.transform.parent = LocalChunkParent.transform;
-    }
-
     public void ResetChunks()
     {
         DestroyImmediate(LocalChunkParent);
         DestroyImmediate(MacroChunkParent);
 
+        GameObject[] localParents = GameObject.FindGameObjectsWithTag("LocalChunkParent");
+
+        for (int i = 0; i < localParents.Length; i++)
+        {
+            DestroyImmediate(localParents[i]);
+        }
+
+        GameObject[] macroParents = GameObject.FindGameObjectsWithTag("MacroChunkParent");
+
+        for (int i = 0; i < localParents.Length; i++)
+        {
+            DestroyImmediate(macroParents[i]);
+        }
+
         LocalChunkParent = new GameObject("Local Chunk Parent");
+        LocalChunkParent.tag = "LocalChunkParent";
         MacroChunkParent = new GameObject("Macro Chunk Parent");
+        MacroChunkParent.tag = "MacroChunkParent";
 
         PreviousLocalChunks.Clear();
         PreviousMacroChunks.Clear();

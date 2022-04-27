@@ -35,10 +35,10 @@ public class Utils
 
     public static Dictionary<ChunkSizeOptions, (int, int)> ChunkSizes = new Dictionary<ChunkSizeOptions, (int, int)>() 
     {
-        { ChunkSizeOptions.Small, (10, 100) },
-        { ChunkSizeOptions.Medium, (30, 300)},
-        { ChunkSizeOptions.Large, (50, 500)},
-        { ChunkSizeOptions.ExtraLarge, (100, 1000)}
+        { ChunkSizeOptions.Small, (16, 128) },
+        { ChunkSizeOptions.Medium, (32, 256)},
+        { ChunkSizeOptions.Large, (64, 512)},
+        { ChunkSizeOptions.ExtraLarge, (128, 1024)}
     };
 }
 

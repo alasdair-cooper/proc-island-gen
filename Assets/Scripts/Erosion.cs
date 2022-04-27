@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 
 public class Erosion
 {
-
-    public int seed;
     [Range(2, 8)]
     public int erosionRadius = 3;
     [Range(0, 1)]
@@ -34,13 +32,9 @@ public class Erosion
     int currentMapSize;
 
     // Initialization creates a System.Random object and precomputes indices and weights of erosion brush
-    void Initialize(int mapSize, bool resetSeed)
+    void Initialize(int mapSize, int seed)
     {
-        if (resetSeed || prng == null || currentSeed != seed)
-        {
-            prng = new System.Random(seed);
-            currentSeed = seed;
-        }
+        prng = new System.Random(seed);
 
         if (erosionBrushIndices == null || currentErosionRadius != erosionRadius || currentMapSize != mapSize)
         {
@@ -50,9 +44,9 @@ public class Erosion
         }
     }
 
-    public void Erode(float[] map, int mapSize, int numIterations = 1, bool resetSeed = false)
+    public void Erode(float[] map, int mapSize, int seed, int numIterations = 1)
     {
-        Initialize(mapSize, resetSeed);
+        Initialize(mapSize, seed);
 
 
         for (int iteration = 0; iteration < numIterations; iteration += 1000)

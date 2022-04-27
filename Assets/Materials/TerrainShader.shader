@@ -201,12 +201,17 @@ Shader "Custom/TerrainShader"
 
             float2 scaledPosBottom = pos * (1 / _TilingBottom);
 
-            float d1 = lerp(-1, 1, tex2Dlod(_DispTex1, float4(scaledPos1, 0, 0)).r) * _Disp1;
+     /*       float d1 = lerp(-1, 1, tex2Dlod(_DispTex1, float4(scaledPos1, 0, 0)).r) * _Disp1;
             float d2 = lerp(-1, 1, tex2Dlod(_DispTex2, float4(scaledPos2, 0, 0)).r) * _Disp2;
             float d3 = lerp(-1, 1, tex2Dlod(_DispTex3, float4(scaledPos3, 0, 0)).r) * _Disp3;
-            float d4 = lerp(-1, 1, tex2Dlod(_DispTex4, float4(scaledPos4, 0, 0)).r) * _Disp4;
+            float d4 = lerp(-1, 1, tex2Dlod(_DispTex4, float4(scaledPos4, 0, 0)).r) * _Disp4;*/
+            //float dBottom = lerp(-1, 1, tex2Dlod(_DispTexBottom, float4(scaledPosBottom, 0, 0)).r) * _DispBottom;
 
-            float dBottom = lerp(-1, 1, tex2Dlod(_DispTexBottom, float4(scaledPosBottom, 0, 0)).r) * _DispBottom;
+            float d1 = tex2Dlod(_DispTex1, float4(scaledPos1, 0, 0)).r * _Disp1;
+            float d2 = tex2Dlod(_DispTex2, float4(scaledPos2, 0, 0)).r * _Disp2;
+            float d3 = tex2Dlod(_DispTex3, float4(scaledPos3, 0, 0)).r * _Disp3;
+            float d4 = tex2Dlod(_DispTex4, float4(scaledPos4, 0, 0)).r * _Disp4;
+            float dBottom = tex2Dlod(_DispTexBottom, float4(scaledPosBottom, 0, 0)).r * _DispBottom;
 
             float _LowThresholdRadius = _LowThresholdWidth / 2;
             float _MidThresholdRadius = _MidThresholdWidth / 2;

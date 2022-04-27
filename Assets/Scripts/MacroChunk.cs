@@ -18,6 +18,8 @@ public class MacroChunk
 
     public float[] heightmap { get; set; }
 
+    public int ActualSize;
+
     public WaterPlaneChunk WaterChunk { get; set; }
 
     public bool IsTerrain;
@@ -30,7 +32,7 @@ public class MacroChunk
 
     public Thread ErosionThread;
 
-    public MacroChunk(Vector2 position, NoiseMapInfo mapInfo, Material waterMaterial, Material chunkMaterial, float waterHeight, Transform macrosChunksParent, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution, bool isTerrain = false)
+    public MacroChunk(Vector2 position, NoiseMapInfo mapInfo, Material waterMaterial, Material chunkMaterial, float waterHeight, Transform macroChunksParent, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution, bool isTerrain = false)
     {
         ChunkPosition = position;
         MapInfo = mapInfo;
@@ -38,18 +40,17 @@ public class MacroChunk
         FalloffDistribution = falloffDistribution;
         IsTerrain = isTerrain;
 
+        this.ActualSize = MapInfo.MacroChunkSize + 1;
+
         WaterChunk = new WaterPlaneChunk(mapInfo.MacroChunkSize, waterMaterial);
         WaterChunk.WaterPlane.transform.position = new Vector3(position.x + MapInfo.MacroChunkSize / 2, waterHeight, position.y + MapInfo.MacroChunkSize / 2);
-        WaterChunk.WaterPlane.transform.parent = macrosChunksParent;
-
-
-        int meshWidth = mapInfo.MacroChunkSize + 1;
+        WaterChunk.WaterPlane.transform.parent = macroChunksParent;
 
         if (isTerrain)
         {
-            heightmap = new float[meshWidth];
+            heightmap = new float[ActualSize];
 
-            NativeArray<float> heights = new NativeArray<float>(meshWidth * meshWidth, Allocator.TempJob);
+            NativeArray<float> heights = new NativeArray<float>(ActualSize * ActualSize, Allocator.TempJob);
 
             System.Random random = new System.Random(MapInfo.Seed);
             NativeArray<int> xOffsets = new NativeArray<int>(mapInfo.Octaves, Allocator.TempJob);
@@ -86,7 +87,7 @@ public class MacroChunk
 
             Erosion eroder = new Erosion();
 
-            ThreadStart starter = () => eroder.Erode(heightmap, MapInfo.MacroChunkSize, MapInfo.ErosionIterations);
+            ThreadStart starter = () => eroder.Erode(heightmap, MapInfo.MacroChunkSize, MapInfo.Seed, MapInfo.ErosionIterations);
 
             starter += () => OnErosionFinish();
 
