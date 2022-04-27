@@ -5,6 +5,8 @@ using Unity;
 using UnityEngine;
 using UnityEditor;
 
+using NaughtyAttributes;
+
 [ExecuteInEditMode]
 public class TerrainController : MonoBehaviour
 {
@@ -12,7 +14,6 @@ public class TerrainController : MonoBehaviour
     private float timeSinceLastNoiseMapUpdate = 0;
 
     public AnimationCurve VarietyDistribution;
-    public AnimationCurve FalloffDistribution;
 
     public int MacroChunkViewDistance;
     public int LocalChunkViewDistance;
@@ -21,35 +22,64 @@ public class TerrainController : MonoBehaviour
     public float WaterHeight;
     public Material WaterMaterial;
 
-    ComputeShader NoiseHeightmapShader;
-
     public float LodFalloffMultiplier;
 
     Dictionary<Vector2, LocalChunk> CurrentLocalChunks = new Dictionary<Vector2, LocalChunk>();
     Dictionary<Vector2, LocalChunk> PreviousLocalChunks = new Dictionary<Vector2, LocalChunk>();
     public GameObject LocalChunkParent;
-    int localChunkRange;
 
     Dictionary<Vector2, MacroChunk> CurrentMacroChunks = new Dictionary<Vector2, MacroChunk>();
     Dictionary<Vector2, MacroChunk> PreviousMacroChunks = new Dictionary<Vector2, MacroChunk>();
     public GameObject MacroChunkParent;
-    int macroChunkRange;
 
     public Utils.ChunkSizeOptions chunkSizeOptions;
 
     public Utils.NoiseType NoiseType;
 
-    public bool AutoUpdate;
-    public float AutoUpdateTime = 1;
+    bool AutoUpdate = false;
+    float AutoUpdateTime = 1;
 
     public bool PauseUpdate;
 
     public bool GenerateWithFalloff;
+    [EnableIf("GenerateWithFalloff")]
+    public AnimationCurve FalloffDistribution;
+
     public bool GenerateInfinitely;
-    public bool PreserveChunks;
+    [DisableIf("GenerateInfinitely")]
+    public bool UseLod;
+    [DisableIf("GenerateInfinitely")]
+    public int ChunksToGenerateInX;
+    [DisableIf("GenerateInfinitely")]
+    public int ChunksToGenerateInY;
+
     public bool ErodeTerrain;
 
     public bool EnableConsoleChunkUpdates;
+
+    public Transform FlythroughTarget;
+
+    public bool StartFlyThrough;
+
+    bool flythroughStarted;
+
+    public int FlythroughLength;
+
+    float flythroughTimer;
+
+    public Vector3 FlythroughDirection;
+
+    public float FlythroughSpeed;
+
+    public bool StartFpsRecorder;
+
+    bool recordingStarted;
+
+    public int NumberOfSecondsToCount;
+
+    float recordingTimer = -1;
+
+    double[] fps;
 
     private void Awake()
     {
@@ -60,6 +90,7 @@ public class TerrainController : MonoBehaviour
     void Start()
     {
         ResetChunks();
+        fps = new double[NumberOfSecondsToCount];
     }
 
     // Update is called once per frame
@@ -68,6 +99,41 @@ public class TerrainController : MonoBehaviour
         UpdateMapInfo();
         UpdateFog();
         UpdateChunks();
+
+        if (StartFlyThrough)
+        {
+            StartFlyThrough = false;
+            flythroughTimer = 0;
+            flythroughStarted = true;
+        }
+        else if (flythroughStarted && flythroughTimer < FlythroughLength)
+        {
+            FlythroughTarget.position += FlythroughDirection * Time.deltaTime * FlythroughSpeed;
+            flythroughTimer += Time.deltaTime;
+        }
+        else if (flythroughStarted && flythroughTimer >= FlythroughLength)
+        {
+            flythroughStarted = false;
+        }
+
+        if (StartFpsRecorder)
+        {
+            fps = new double[NumberOfSecondsToCount];
+            StartFpsRecorder = false;
+            recordingTimer = 0;
+            recordingStarted = true;
+        }
+        else if(recordingStarted && recordingTimer < NumberOfSecondsToCount)
+        {
+            fps[Mathf.FloorToInt(recordingTimer)] += 1;
+            recordingTimer += Time.deltaTime;
+        }
+        else if(recordingStarted && recordingTimer >= NumberOfSecondsToCount)
+        {
+            Debug.Log(fps.Average());
+            fps = new double[NumberOfSecondsToCount];
+            recordingStarted = false;
+        }
     }
 
     public Vector2 GetLocalChunkPositionAtCamera()
@@ -114,8 +180,8 @@ public class TerrainController : MonoBehaviour
 
     public void UpdateFog()
     {
-        RenderSettings.fogStartDistance = MacroChunkViewDistance * 0.9f;
-        RenderSettings.fogEndDistance = MacroChunkViewDistance;
+        //RenderSettings.fogStartDistance = MacroChunkViewDistance * 0.9f;
+        //RenderSettings.fogEndDistance = MacroChunkViewDistance;
     }
 
     public void UpdateMapInfo()
@@ -125,9 +191,6 @@ public class TerrainController : MonoBehaviour
         NoiseMapInfo.LocalChunkSize = chunkSizes.Item1;
         NoiseMapInfo.MacroChunkSize = chunkSizes.Item2;
 
-        localChunkRange = (int)Mathf.Floor(LocalChunkViewDistance / NoiseMapInfo.LocalChunkSize);
-        macroChunkRange = (int)Mathf.Floor(MacroChunkViewDistance / NoiseMapInfo.MacroChunkSize);
-
         NoiseMapInfo.FalloffEnabled = GenerateWithFalloff ? 1 : 0;
     }
 
@@ -135,16 +198,21 @@ public class TerrainController : MonoBehaviour
     {
         Vector2 currentMacroChunkPosition = GetMacroChunkPositionAtCamera();
 
-        for (int z = -macroChunkRange; z <= macroChunkRange; z++)
+        for (int z = -MacroChunkViewDistance; z <= MacroChunkViewDistance; z++)
         {
-            for (int x = -macroChunkRange; x <= macroChunkRange; x++)
+            for (int x = -MacroChunkViewDistance; x <= MacroChunkViewDistance; x++)
             {
                 Vector2 newChunkOriginPosition = currentMacroChunkPosition + (new Vector2(x, z) * NoiseMapInfo.MacroChunkSize);
-                if (GenerateInfinitely)
+                if (GenerateInfinitely 
+                    || ((newChunkOriginPosition.x / NoiseMapInfo.MacroChunkSize) < ChunksToGenerateInX
+                    && (newChunkOriginPosition.y / NoiseMapInfo.MacroChunkSize) < ChunksToGenerateInY
+                    && newChunkOriginPosition.x >= 0
+                    && newChunkOriginPosition.y >= 0))
                 {
-                    if (Vector2.Distance(currentMacroChunkPosition, newChunkOriginPosition) < macroChunkRange * NoiseMapInfo.MacroChunkSize)
+                    if (Vector2.Distance(currentMacroChunkPosition, newChunkOriginPosition) < MacroChunkViewDistance * NoiseMapInfo.MacroChunkSize)
                     {
                         GenerateSingleMacroChunk(newChunkOriginPosition);
+                        
                     }
                 }
             }
@@ -164,8 +232,16 @@ public class TerrainController : MonoBehaviour
     {
         MacroChunk currentChunk;
 
-        bool isIsland = Mathf.PerlinNoise((newChunkOriginPosition.x + 0.01f) / (NoiseMapInfo.MacroChunkSize), (newChunkOriginPosition.y + 0.01f) / (NoiseMapInfo.MacroChunkSize)) > NoiseMapInfo.IslandDensity;
-        // Debug.Log(Mathf.PerlinNoise(newChunkOriginPosition.x / NoiseMapInfo.IslandSize + 0.01f, newChunkOriginPosition.y / NoiseMapInfo.IslandSize + 0.01f));
+        bool isIsland;
+        if (GenerateWithFalloff)
+        {
+            isIsland = Mathf.PerlinNoise((newChunkOriginPosition.x + 0.01f) / (NoiseMapInfo.MacroChunkSize), (newChunkOriginPosition.y + 0.01f) / (NoiseMapInfo.MacroChunkSize)) > NoiseMapInfo.IslandDensity;
+            // Debug.Log(Mathf.PerlinNoise(newChunkOriginPosition.x / NoiseMapInfo.IslandSize + 0.01f, newChunkOriginPosition.y / NoiseMapInfo.IslandSize + 0.01f));
+        }
+        else
+        {
+            isIsland = true;
+        }
 
         if (PreviousMacroChunks.TryGetValue(newChunkOriginPosition, out currentChunk))
         {
@@ -200,9 +276,9 @@ public class TerrainController : MonoBehaviour
     {
         Vector2 currentChunkPosition = GetLocalChunkPositionAtCamera();
 
-        for (int z = -localChunkRange; z <= localChunkRange; z++)
+        for (int z = -LocalChunkViewDistance; z <= LocalChunkViewDistance; z++)
         {
-            for (int x = -localChunkRange; x <= localChunkRange; x++)
+            for (int x = -LocalChunkViewDistance; x <= LocalChunkViewDistance; x++)
             {
                 Vector2 newChunkOriginPosition = currentChunkPosition + (new Vector2(x, z) * NoiseMapInfo.LocalChunkSize);
 
@@ -212,14 +288,13 @@ public class TerrainController : MonoBehaviour
 
                 if (PreviousMacroChunks.TryGetValue(currentMacroChunkPosition, out currentMacroChunk))
                 {
-                    if (GenerateInfinitely 
-                        && Vector2.Distance(currentChunkPosition, newChunkOriginPosition) < localChunkRange * NoiseMapInfo.LocalChunkSize 
-                        && ((currentMacroChunk.IsTerrain && currentMacroChunk.IsEroded) || !ErodeTerrain))
+                    if (Vector2.Distance(currentChunkPosition, newChunkOriginPosition) < LocalChunkViewDistance * NoiseMapInfo.LocalChunkSize 
+                        && currentMacroChunk.IsTerrain && ( currentMacroChunk.IsEroded || !ErodeTerrain))
                     {
                         int initialPoint = (int)(newChunkOriginPosition.x - currentMacroChunkPosition.x) + (int)(newChunkOriginPosition.y - currentMacroChunkPosition.y) * (NoiseMapInfo.MacroChunkSize);
 
                         GenerateSingleLocalChunk(newChunkOriginPosition, currentMacroChunk.heightmap, initialPoint);
-
+                        
                         currentMacroChunk.ErosionThread = null;
                     } 
                 }
@@ -240,7 +315,17 @@ public class TerrainController : MonoBehaviour
         LocalChunk currentChunk;
         float[] chunkHeightmap = SliceHeightmap(heightmap, initialPoint, NoiseMapInfo.LocalChunkSize + 1, NoiseMapInfo.MacroChunkSize);
         Vector2 newChunkCentre = newChunkOriginPosition + new Vector2(1, 1) * 0.5f * NoiseMapInfo.LocalChunkSize;
-        int lod = Mathf.CeilToInt(Vector2.Distance(newChunkCentre, new Vector2(transform.position.x, transform.position.z)) / (NoiseMapInfo.LocalChunkSize * (1 / LodFalloffMultiplier)));
+
+        int lod;
+        if (!GenerateInfinitely && !UseLod)
+        {
+            lod = 0;
+        }
+        else
+        {
+            lod = Mathf.CeilToInt(Vector2.Distance(newChunkCentre, new Vector2(transform.position.x, transform.position.z)) / (NoiseMapInfo.LocalChunkSize * (1 / LodFalloffMultiplier)));
+        }
+
         if (PreviousLocalChunks.TryGetValue(newChunkOriginPosition, out currentChunk))
         {
             currentChunk.UpdateChunk(chunkHeightmap, lod);

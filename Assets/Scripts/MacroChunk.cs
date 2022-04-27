@@ -48,7 +48,7 @@ public class MacroChunk
 
         if (isTerrain)
         {
-            heightmap = new float[ActualSize];
+            heightmap = new float[ActualSize * ActualSize];
 
             NativeArray<float> heights = new NativeArray<float>(ActualSize * ActualSize, Allocator.TempJob);
 

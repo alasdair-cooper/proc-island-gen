@@ -5,9 +5,9 @@ public class LocalChunk
 {
     public GameObject ChunkObject { get; set; }
     
-    readonly Vector2 _chunkPosition;
+    public Vector2 ChunkPosition;
     Dictionary<int, Mesh> _chunkLODs;
-    int _currentLod = 0;
+    int _currentLod = -1;
     int _maxLod = -1;
 
     int _actualWidth;
@@ -25,7 +25,7 @@ public class LocalChunk
         _chunkMaterial = chunkMaterial;
         _varietyDistribution = varietyDistribution;
         _falloffDistribution = falloffDistribution;
-        _chunkPosition = position;
+        ChunkPosition = position;
 
         _chunkLODs = new Dictionary<int, Mesh>();
 
@@ -120,8 +120,8 @@ public class LocalChunk
         {
             for (int x = 0; x < _actualWidth; x += trueLod)
             {
-                float worldX = x + _chunkPosition.x;
-                float worldZ = z + _chunkPosition.y;
+                float worldX = x + ChunkPosition.x;
+                float worldZ = z + ChunkPosition.y;
 
                 float falloffFactor = 1;
                 if (MapInfo.FalloffEnabled == 1)

@@ -9,6 +9,7 @@
     }
   ],
   "dependencies": {
+    "com.dbrizov.naughtyattributes": "https://github.com/dbrizov/NaughtyAttributes.git#upm",
     "com.unity.cinemachine": "2.8.4",
     "com.unity.collab-proxy": "1.15.13",
     "com.unity.entities": "0.17.0-preview.42",

@@ -1,0 +1,283 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1547588613176350521
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1547588613176350524}
+  - component: {fileID: 1547588613176350523}
+  - component: {fileID: 1547588613176350522}
+  - component: {fileID: 1487764185272085284}
+  - component: {fileID: 1487764185272085307}
+  - component: {fileID: 1487764185272085306}
+  - component: {fileID: 1487764185272085305}
+  m_Layer: 0
+  m_Name: MainCamera 2
+  m_TagString: MainCamera
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1547588613176350524
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547588613176350521}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 553.2, y: 9.644, z: 512}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &1547588613176350523
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547588613176350521}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.972549, g: 0.95686275, b: 0.92941177, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.2
+  far clip plane: 500
+  field of view: 40
+  orthographic: 0
+  orthographic size: 10
+  m_Depth: -1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!81 &1547588613176350522
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547588613176350521}
+  m_Enabled: 1
+--- !u!114 &1487764185272085284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547588613176350521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowDebugText: 0
+  m_ShowCameraFrustum: 1
+  m_IgnoreTimeScale: 0
+  m_WorldUpOverride: {fileID: 0}
+  m_UpdateMethod: 2
+  m_BlendUpdateMethod: 1
+  m_DefaultBlend:
+    m_Style: 1
+    m_Time: 2
+    m_CustomCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  m_CustomBlends: {fileID: 0}
+  m_CameraCutEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_CameraActivatedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1487764185272085307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547588613176350521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cab87a4cfb25304cb6e7f2bb2324bdc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NoiseMapInfo:
+    <IslandDensity>k__BackingField: 0.465
+    <ErosionIterations>k__BackingField: 1000000
+    <Seed>k__BackingField: 0
+    <NoiseScale>k__BackingField: 50
+    <VerticalScale>k__BackingField: 10
+    <Octaves>k__BackingField: 8
+    <Lacunarity>k__BackingField: 4
+    <Persistence>k__BackingField: 0.2
+    <MaxLod>k__BackingField: 4
+    <LacunarityMult>k__BackingField: 0
+    <PersistenceMult>k__BackingField: 0
+    <FalloffEnabled>k__BackingField: 0
+  VarietyDistribution:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  MacroChunkViewDistance: 2
+  LocalChunkViewDistance: 50
+  ChunkMaterial: {fileID: 2100000, guid: 5ee296dcdf626e7429e34fe0d270922e, type: 2}
+  WaterHeight: 5
+  WaterMaterial: {fileID: 2100000, guid: 7350b65a6431f604a8496c39db1ac9c5, type: 2}
+  LodFalloffMultiplier: 0.5
+  LocalChunkParent: {fileID: 0}
+  MacroChunkParent: {fileID: 0}
+  chunkSizeOptions: 2
+  NoiseType: 0
+  PauseUpdate: 0
+  GenerateWithFalloff: 0
+  FalloffDistribution:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  GenerateInfinitely: 0
+  UseLod: 0
+  ChunksToGenerateInX: 2
+  ChunksToGenerateInY: 2
+  ErodeTerrain: 0
+  EnableConsoleChunkUpdates: 0
+  FlythroughTarget: {fileID: 0}
+  StartFlyThrough: 0
+  FlythroughLength: 5
+  FlythroughDirection: {x: 0, y: 0, z: 1}
+  FlythroughSpeed: 5
+  StartFpsRecorder: 0
+  NumberOfSecondsToCount: 5
+--- !u!114 &1487764185272085306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547588613176350521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7e6c867ed2372b4b83e264a47234be4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TerrainMaterial: {fileID: 2100000, guid: 5ee296dcdf626e7429e34fe0d270922e, type: 2}
+  DebugMode: 0
+  Tesselation: 22
+  TesselationDistance: 100
+  LowThresholdBorder: 0.02
+  MidThresholdBorder: 1
+  HighThresholdBorder: 1
+  LowThresholdBorderWidth: 0.05
+  MidThresholdBorderWidth: 0.1
+  HighThresholdBorderWidth: 0.1
+  BottomCapThresholdBorder: 6.57
+  BottomCapThresholdBorderWidth: 4.59
+  Specular: 0
+  Gloss: 0
+  Textures:
+  - DisplacementAmount: 1
+    TilingAmount: 10
+    Albedo: {fileID: 2800000, guid: 9611b7800283bad4ab6e12aeb18ac819, type: 3}
+    Displacement: {fileID: 2800000, guid: bbb4411e04a9bbf4bb0f9a76c8b9dd29, type: 3}
+    Normalmap: {fileID: 2800000, guid: d9eae7215689b944e8602ce43bacbfb3, type: 3}
+  - DisplacementAmount: 1
+    TilingAmount: 15
+    Albedo: {fileID: 2800000, guid: 89164a82e4e8ad4499a77c77ead5130b, type: 3}
+    Displacement: {fileID: 2800000, guid: 1ff8f28c294b28b4d88cd55705bebb09, type: 3}
+    Normalmap: {fileID: 2800000, guid: 4027ac15ec2ef4241a98713e33924cdf, type: 3}
+  BottomCapTexture:
+    DisplacementAmount: 1
+    TilingAmount: 10
+    Albedo: {fileID: 2800000, guid: 64f92740b40319848bddbdbf7985ff9b, type: 3}
+    Displacement: {fileID: 2800000, guid: af70087d6f7461b489548f0d194239e9, type: 3}
+    Normalmap: {fileID: 2800000, guid: eb274aa22cd292648921ac6fa16bb2d9, type: 3}
+--- !u!114 &1487764185272085305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547588613176350521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a2a9c34df4095f47b9ca8f975175f5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Device: 0
+  m_PoseSource: 2
+  m_PoseProviderComponent: {fileID: 0}
+  m_TrackingType: 0
+  m_UpdateType: 0
+  m_UseRelativeTransform: 0

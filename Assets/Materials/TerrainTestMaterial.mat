@@ -177,29 +177,29 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BottomCapThreshold: 12.2
-    - _BottomCapThresholdWidth: 1.62
+    - _BottomCapThreshold: 6.57
+    - _BottomCapThresholdWidth: 4.59
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DebugMode: 0
     - _DetailNormalMapScale: 1
-    - _Disp1: 0
-    - _Disp2: 0
-    - _Disp3: 0
-    - _Disp4: 0
-    - _DispBottom: 0
+    - _Disp1: 1
+    - _Disp2: 1
+    - _Disp3: 1
+    - _Disp4: 1
+    - _DispBottom: 1
     - _Displacement: 0.179
     - _DstBlend: 0
     - _Gloss: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HighThreshold: 0.657
+    - _HighThreshold: 1
     - _HighThresholdWidth: 0.1
-    - _LowThreshold: 0.211
-    - _LowThresholdWidth: 0.035
+    - _LowThreshold: 0.02
+    - _LowThresholdWidth: 0.05
     - _Metallic: 0
-    - _MidThreshold: 0.541
+    - _MidThreshold: 1
     - _MidThresholdWidth: 0.1
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -208,8 +208,8 @@ Material:
     - _Spec: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Tess: 1
-    - _TessDst: 30
+    - _Tess: 22
+    - _TessDst: 10
     - _Tiling1: 10
     - _Tiling2: 15
     - _Tiling3: 15
