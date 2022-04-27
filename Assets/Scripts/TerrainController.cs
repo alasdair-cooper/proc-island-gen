@@ -23,6 +23,8 @@ public class TerrainController : MonoBehaviour
 
     ComputeShader NoiseHeightmapShader;
 
+    public float LodFalloffMultiplier;
+
     Dictionary<Vector2, LocalChunk> CurrentLocalChunks = new Dictionary<Vector2, LocalChunk>();
     Dictionary<Vector2, LocalChunk> PreviousLocalChunks = new Dictionary<Vector2, LocalChunk>();
     public GameObject LocalChunkParent;
@@ -45,6 +47,7 @@ public class TerrainController : MonoBehaviour
     public bool GenerateWithFalloff;
     public bool GenerateInfinitely;
     public bool PreserveChunks;
+    public bool ErodeTerrain;
 
     public bool EnableConsoleChunkUpdates;
 
@@ -186,7 +189,7 @@ public class TerrainController : MonoBehaviour
             }
             else
             {
-                currentChunk = new MacroChunk(newChunkOriginPosition, NoiseMapInfo, WaterMaterial, ChunkMaterial, WaterHeight, MacroChunkParent.transform, VarietyDistribution, FalloffDistribution, isIsland);
+                currentChunk = new MacroChunk(newChunkOriginPosition, NoiseMapInfo, WaterMaterial, ChunkMaterial, WaterHeight, MacroChunkParent.transform, VarietyDistribution, FalloffDistribution, isIsland, ErodeTerrain && GenerateWithFalloff);
             }
 
             CurrentMacroChunks.Add(newChunkOriginPosition, currentChunk);
@@ -211,8 +214,7 @@ public class TerrainController : MonoBehaviour
                 {
                     if (GenerateInfinitely 
                         && Vector2.Distance(currentChunkPosition, newChunkOriginPosition) < localChunkRange * NoiseMapInfo.LocalChunkSize 
-                        && currentMacroChunk.IsTerrain
-                        && currentMacroChunk.IsEroded)
+                        && ((currentMacroChunk.IsTerrain && currentMacroChunk.IsEroded) || !ErodeTerrain))
                     {
                         int initialPoint = (int)(newChunkOriginPosition.x - currentMacroChunkPosition.x) + (int)(newChunkOriginPosition.y - currentMacroChunkPosition.y) * (NoiseMapInfo.MacroChunkSize);
 
@@ -237,7 +239,8 @@ public class TerrainController : MonoBehaviour
     {
         LocalChunk currentChunk;
         float[] chunkHeightmap = SliceHeightmap(heightmap, initialPoint, NoiseMapInfo.LocalChunkSize + 1, NoiseMapInfo.MacroChunkSize);
-        int lod = Mathf.CeilToInt(Vector2.Distance(newChunkOriginPosition + new Vector2(1, 1) * 0.5f * NoiseMapInfo.LocalChunkSize, new Vector2(transform.position.x, transform.position.z)) / NoiseMapInfo.LocalChunkSize);
+        Vector2 newChunkCentre = newChunkOriginPosition + new Vector2(1, 1) * 0.5f * NoiseMapInfo.LocalChunkSize;
+        int lod = Mathf.CeilToInt(Vector2.Distance(newChunkCentre, new Vector2(transform.position.x, transform.position.z)) / (NoiseMapInfo.LocalChunkSize * (1 / LodFalloffMultiplier)));
         if (PreviousLocalChunks.TryGetValue(newChunkOriginPosition, out currentChunk))
         {
             currentChunk.UpdateChunk(chunkHeightmap, lod);

@@ -32,7 +32,7 @@ public class MacroChunk
 
     public Thread ErosionThread;
 
-    public MacroChunk(Vector2 position, NoiseMapInfo mapInfo, Material waterMaterial, Material chunkMaterial, float waterHeight, Transform macroChunksParent, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution, bool isTerrain = false)
+    public MacroChunk(Vector2 position, NoiseMapInfo mapInfo, Material waterMaterial, Material chunkMaterial, float waterHeight, Transform macroChunksParent, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution, bool isTerrain = false, bool erodeTerrain = true)
     {
         ChunkPosition = position;
         MapInfo = mapInfo;
@@ -85,14 +85,18 @@ public class MacroChunk
             xOffsets.Dispose();
             zOffsets.Dispose();
 
-            Erosion eroder = new Erosion();
+            if (erodeTerrain)
+            {
 
-            ThreadStart starter = () => eroder.Erode(heightmap, MapInfo.MacroChunkSize, MapInfo.Seed, MapInfo.ErosionIterations);
+                Erosion eroder = new Erosion();
 
-            starter += () => OnErosionFinish();
+                ThreadStart starter = () => eroder.Erode(heightmap, MapInfo.MacroChunkSize, MapInfo.Seed, MapInfo.ErosionIterations);
 
-            ErosionThread = new Thread(starter);
-            ErosionThread.Start();
+                starter += () => OnErosionFinish();
+
+                ErosionThread = new Thread(starter);
+                ErosionThread.Start();
+            }
         }
     }
 
