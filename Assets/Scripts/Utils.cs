@@ -7,8 +7,7 @@ public class Utils
     public enum NoiseType
     {
         perlin,
-        simplex,
-        displacement
+        simplex
     }
 
     public enum RenderMode
@@ -27,6 +26,7 @@ public class Utils
 
     public enum ChunkSizeOptions
     {
+        Same,
         Small,
         Medium,
         Large,
@@ -35,6 +35,7 @@ public class Utils
 
     public static Dictionary<ChunkSizeOptions, (int, int)> ChunkSizes = new Dictionary<ChunkSizeOptions, (int, int)>() 
     {
+        {ChunkSizeOptions.Same, (32, 32) },
         { ChunkSizeOptions.Small, (16, 128) },
         { ChunkSizeOptions.Medium, (32, 256)},
         { ChunkSizeOptions.Large, (64, 512)},

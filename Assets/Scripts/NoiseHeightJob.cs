@@ -4,6 +4,8 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
 
+using Unity.Mathematics;
+
 public struct NoiseHeightJob : IJobParallelFor
 {
     [WriteOnly]
@@ -17,6 +19,8 @@ public struct NoiseHeightJob : IJobParallelFor
 
     public int size;
     public int octaves;
+
+    public int mode;
 
     public float scale;
     public float persistence;
@@ -51,8 +55,16 @@ public struct NoiseHeightJob : IJobParallelFor
             //    noiseSample = Mathf.Clamp(Mathf.PerlinNoise(xValue, zValue), 0, 1);
             //}
 
-            noiseHeight += Mathf.Clamp(Mathf.PerlinNoise(xValue, zValue), 0, 1) * amplitude;
+            float2 position = new float2(xValue, zValue);
 
+            if (mode == 0)
+            {
+                noiseHeight += Mathf.Clamp(Mathf.PerlinNoise(xValue, zValue), 0, 1) * amplitude;
+            }
+            else if(mode == 1)
+            {
+                noiseHeight += Mathf.Clamp(noise.snoise(position), 0, 1) * amplitude;
+            }
             frequency *= lacunarity;
             amplitude *= persistence;
         }

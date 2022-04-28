@@ -32,6 +32,8 @@ public class MacroChunk
 
     public Thread ErosionThread;
 
+    public System.Diagnostics.Stopwatch Stopwatch;
+
     public MacroChunk(Vector2 position, NoiseMapInfo mapInfo, Material waterMaterial, Material chunkMaterial, float waterHeight, Transform macroChunksParent, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution, bool isTerrain = false, bool erodeTerrain = true)
     {
         ChunkPosition = position;
@@ -69,6 +71,7 @@ public class MacroChunk
             jobData.zOffsets = zOffsets;
             jobData.size = mapInfo.MacroChunkSize;
             jobData.octaves = mapInfo.Octaves;
+            jobData.mode = mapInfo.Mode;
             jobData.scale = mapInfo.NoiseScale;
             jobData.persistence = mapInfo.Persistence;
             jobData.lacunarity = mapInfo.Lacunarity;
@@ -81,12 +84,20 @@ public class MacroChunk
 
             heightmap = heights.ToArray();
 
+            //for (int i = 0; i < heightmap.Length; i++)
+            //{
+            //    heightmap[i] = varietyDistribution.Evaluate(heightmap[i]);
+            //}
+
             heights.Dispose();
             xOffsets.Dispose();
             zOffsets.Dispose();
 
             if (erodeTerrain)
             {
+                Stopwatch = new System.Diagnostics.Stopwatch();
+
+                Stopwatch.Start();
 
                 Erosion eroder = new Erosion();
 
@@ -102,7 +113,7 @@ public class MacroChunk
 
     void OnErosionFinish()
     {
-        Debug.Log($"Chunk at {ChunkPosition} eroded. {heightmap.Count()} {heightmap[0]}");
+        
     }
 
     void GenerateChunkMesh(Vector2 position, Transform parent, Material material)

@@ -22,6 +22,8 @@ public class NoiseMapInfo
     [field: SerializeField]
     public int Seed { get; set; }
 
+    public int Mode { get; set; }
+
     [field: SerializeField, Min(0.01f)]
     public float NoiseScale { get; set; }
 
