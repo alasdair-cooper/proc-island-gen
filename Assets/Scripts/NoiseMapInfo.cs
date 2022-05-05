@@ -42,12 +42,6 @@ public class NoiseMapInfo
     [field: SerializeField, Range(0, 10)]
     public int MaxLod { get; set; }
 
-    [field: SerializeField, Range(1, 10)]
-    public float LacunarityMult { get; set; }
-
-    [field: SerializeField, Range(1, 10)]
-    public float PersistenceMult { get; set; }
-
     [field: SerializeField, HideInInspector]
     public int FalloffEnabled { get; set; }
 
@@ -62,8 +56,6 @@ public class NoiseMapInfo
         float lacunarity = 25,
         float persistence = 0.5f,
         int maxLod = 1,
-        float lacunarityMult = 1,
-        float persistenceMult = 1,
         bool falloffEnabled = false)
     {
         LocalChunkSize = chunkSize;
@@ -80,9 +72,6 @@ public class NoiseMapInfo
         Persistence = persistence;
 
         MaxLod = maxLod;
-
-        LacunarityMult = lacunarityMult;
-        PersistenceMult = persistenceMult;
 
         FalloffEnabled = falloffEnabled ? 1 : 0;
     }

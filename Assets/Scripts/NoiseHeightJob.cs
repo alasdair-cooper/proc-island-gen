@@ -59,11 +59,11 @@ public struct NoiseHeightJob : IJobParallelFor
 
             if (mode == 0)
             {
-                noiseHeight += Mathf.Clamp(Mathf.PerlinNoise(xValue, zValue), 0, 1) * amplitude;
+                noiseHeight += Mathf.InverseLerp(-1, 1, Mathf.Clamp(noise.cnoise(position), -1, 1)) * amplitude;
             }
             else if(mode == 1)
             {
-                noiseHeight += Mathf.Clamp(noise.snoise(position), 0, 1) * amplitude;
+                noiseHeight += Mathf.InverseLerp(-1, 1, Mathf.Clamp(noise.snoise(position), -1, 1)) * amplitude;
             }
             frequency *= lacunarity;
             amplitude *= persistence;

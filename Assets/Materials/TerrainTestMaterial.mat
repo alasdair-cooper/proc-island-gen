@@ -177,17 +177,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BottomCapThreshold: 10.26
-    - _BottomCapThresholdWidth: 1.2
+    - _BottomCapThreshold: 7.83
+    - _BottomCapThresholdWidth: 1.66
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DebugMode: 0
     - _DetailNormalMapScale: 1
-    - _Disp1: 0
-    - _Disp2: 0
-    - _Disp3: 0
-    - _Disp4: 0
-    - _DispBottom: 0
+    - _Disp1: 1
+    - _Disp2: 1
+    - _Disp3: 1
+    - _Disp4: 1
+    - _DispBottom: 0.3
     - _Displacement: 0.179
     - _DstBlend: 0
     - _Gloss: 0
@@ -197,7 +197,7 @@ Material:
     - _HighThreshold: 1
     - _HighThresholdWidth: 0.1
     - _LowThreshold: 0.19
-    - _LowThresholdWidth: 0.27
+    - _LowThresholdWidth: 0.13
     - _Metallic: 0
     - _MidThreshold: 1
     - _MidThresholdWidth: 0.1

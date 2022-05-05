@@ -107,21 +107,13 @@ public class LocalChunk
         (int, int[]) triangles = (0, new int[(verticesPerSide - 1) * (verticesPerSide - 1) * 6]);
         Vector2[] uvs = new Vector2[verticesPerSide * verticesPerSide];
 
-        System.Random random = new System.Random(MapInfo.Seed);
-        Vector2[] offsets = new Vector2[MapInfo.Octaves];
-
-        for (int i = 0; i < offsets.Length; i++)
-        {
-            offsets[i] = new Vector2(random.Next(-100000, 100000), random.Next(-100000, 100000));
-        }
-
         int vertexIndex = 0;
         for (int z = 0; z < _actualWidth; z += trueLod)
         {
             for (int x = 0; x < _actualWidth; x += trueLod)
             {
-                float worldX = x + ChunkPosition.x;
-                float worldZ = z + ChunkPosition.y;
+                float worldX = Mathf.Abs(x + ChunkPosition.x);
+                float worldZ = Mathf.Abs(z + ChunkPosition.y);
 
                 float falloffFactor = 1;
                 if (MapInfo.FalloffEnabled == 1)

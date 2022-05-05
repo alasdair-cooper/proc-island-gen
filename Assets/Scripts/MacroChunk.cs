@@ -22,7 +22,7 @@ public class MacroChunk
 
     public WaterPlaneChunk WaterChunk { get; set; }
 
-    public bool IsTerrain;
+    public bool IsTerrain = true;
     public bool IsEroded = false;
 
     NoiseMapInfo MapInfo;
@@ -34,7 +34,17 @@ public class MacroChunk
 
     public System.Diagnostics.Stopwatch Stopwatch;
 
-    public MacroChunk(Vector2 position, NoiseMapInfo mapInfo, Material waterMaterial, Material chunkMaterial, float waterHeight, Transform macroChunksParent, AnimationCurve varietyDistribution, AnimationCurve falloffDistribution, bool isTerrain = false, bool erodeTerrain = true)
+    public MacroChunk(
+        Vector2 position, 
+        NoiseMapInfo mapInfo, 
+        Material waterMaterial, 
+        Material chunkMaterial, 
+        float waterHeight, 
+        Transform macroChunksParent, 
+        AnimationCurve varietyDistribution, 
+        AnimationCurve falloffDistribution, 
+        bool isTerrain = false, 
+        bool erodeTerrain = true)
     {
         ChunkPosition = position;
         MapInfo = mapInfo;
